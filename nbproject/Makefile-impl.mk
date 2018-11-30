@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=agent_server
+PROJECTNAME=agent
 
 # Active Configuration
 DEFAULTCONF=Debug
