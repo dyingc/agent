@@ -48,6 +48,7 @@
 MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
+GCC=gcc
 
 
 # build
@@ -82,6 +83,8 @@ clobber: .clobber-post
 
 # all
 all: .all-post
+	$(GCC) -o agent_server main_server.cpp
+	$(GCC) -o agent_client main_client.cpp
 
 .all-pre:
 # Add your pre 'all' code here...
