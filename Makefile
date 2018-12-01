@@ -70,8 +70,3 @@ agent_client: $(CLIENT_OBJ)
 # clean
 clean:
 	$(RM) $(SERVER_OBJ) $(CLIENT_OBJ) agent_server agent_client
-# include project implementation makefile
-# include nbproject/Makefile-impl.mk
-
-# include project make variables
-# include nbproject/Makefile-variables.mk
