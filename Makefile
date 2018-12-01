@@ -47,85 +47,31 @@
 # Environment 
 MKDIR=mkdir
 CP=cp
+RM=rm -f
 CCADMIN=CCadmin
-GCC=gcc
+CC=gcc
+CFLAGS=
+DEPS=
+SERVER_OBJ=agent_server.o
+CLIENT_OBJ=agent_client.o
 
+%.o: %.cpp $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-# build
-build: .build-post
+# all	
+all: agent_server agent_client
 
-.build-pre:
-# Add your pre 'build' code here...
+agent_server: $(SERVER_OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
 
-.build-post: .build-impl
-# Add your post 'build' code here...
-
+agent_client: $(CLIENT_OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
 
 # clean
-clean: .clean-post
-
-.clean-pre:
-# Add your pre 'clean' code here...
-
-.clean-post: .clean-impl
-# Add your post 'clean' code here...
-
-
-# clobber
-clobber: .clobber-post
-
-.clobber-pre:
-# Add your pre 'clobber' code here...
-
-.clobber-post: .clobber-impl
-# Add your post 'clobber' code here...
-
-
-# all
-all: .all-post
-	$(GCC) -o agent_server main_server.cpp
-	$(GCC) -o agent_client main_client.cpp
-
-.all-pre:
-# Add your pre 'all' code here...
-
-.all-post: .all-impl
-# Add your post 'all' code here...
-
-
-# build tests
-build-tests: .build-tests-post
-
-.build-tests-pre:
-# Add your pre 'build-tests' code here...
-
-.build-tests-post: .build-tests-impl
-# Add your post 'build-tests' code here...
-
-
-# run tests
-test: .test-post
-
-.test-pre: build-tests
-# Add your pre 'test' code here...
-
-.test-post: .test-impl
-# Add your post 'test' code here...
-
-
-# help
-help: .help-post
-
-.help-pre:
-# Add your pre 'help' code here...
-
-.help-post: .help-impl
-# Add your post 'help' code here...
-
-
-
+clean:
+	$(RM) $(SERVER_OBJ) $(CLIENT_OBJ) agent_server agent_client
 # include project implementation makefile
-include nbproject/Makefile-impl.mk
+# include nbproject/Makefile-impl.mk
 
 # include project make variables
-include nbproject/Makefile-variables.mk
+# include nbproject/Makefile-variables.mk
