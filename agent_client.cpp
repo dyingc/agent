@@ -35,8 +35,12 @@ void execCommand(char *command, char *result) {
     }
     while (fgets(line_contents, sizeof(line_contents)-1, fp) != NULL) {
         strcpy(result, line_contents);
-        printf("%s", line_contents);
+        printf("strcpy num: %lu\n", sizeof(line_contents));
     }
+    strcpy(result, "line 1\n");
+    strcpy(result, "line 2\n");
+    strcpy(result, "line 3\n");
+    printf("%s", result);
 }
 
 int main(int argc, char *argv[])
