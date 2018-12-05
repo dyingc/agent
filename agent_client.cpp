@@ -12,7 +12,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <iostream>
 #include <netdb.h>
+
+using namespace std;
 
 const int COMMAND_LENGTH = 1024;
 const int RESULT_LENGTH = 10240;
@@ -34,13 +37,9 @@ void execCommand(char *command, char *result) {
         exit(1);
     }
     while (fgets(line_contents, sizeof(line_contents)-1, fp) != NULL) {
-        strcpy(result, line_contents);
-        printf("strcpy num: %lu\n", sizeof(line_contents));
+        strcat(result, line_contents);
+        //printf("strcpy num: %lu\n", sizeof(line_contents));
     }
-    strcpy(result, "line 1\n");
-    strcpy(result, "line 2\n");
-    strcpy(result, "line 3\n");
-    printf("%s", result);
 }
 
 int main(int argc, char *argv[])
@@ -79,6 +78,9 @@ int main(int argc, char *argv[])
     fgets(command,COMMAND_LENGTH - 1,stdin);
     execCommand(command, result);
     n = write(sockfd, result, strlen(result));
+    cout << "" << endl;
+    cout << result << endl;
+    cout << "" << endl;
     if (n < 0) 
          error("ERROR writing to socket");
     bzero(buffer,BUFFER_LENGTH);

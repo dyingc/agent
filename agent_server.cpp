@@ -24,6 +24,8 @@
 
 using namespace std;
 
+const int RESULT_LENGTH = 10240;
+
 void error(const char *msg)
 {
     perror(msg);
@@ -37,7 +39,7 @@ int main(int argc, char *argv[])
 {
      int sockfd, newsockfd, portno;
      socklen_t clilen;
-     char buffer[256];
+     char buffer[RESULT_LENGTH];
      struct sockaddr_in serv_addr, cli_addr;
      int n;
      if (argc < 2) {
@@ -100,9 +102,9 @@ int main(int argc, char *argv[])
      // This send() function sends the 13 bytes of the string to the new socket
      send(newsockfd, "\nFinished communication!\n", 24, 0);
 
-     bzero(buffer,256);
+     bzero(buffer,RESULT_LENGTH);
 
-     n = read(newsockfd,buffer,255);
+     n = read(newsockfd,buffer,RESULT_LENGTH-1);
      if (n < 0) error("ERROR reading from socket");
      printf("Here is the message: %s\n",buffer);
 
