@@ -36,7 +36,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/agent_client.o \
-	${OBJECTDIR}/agent_server.o
+	${OBJECTDIR}/agent_server.o \
+	${OBJECTDIR}/api_tester.o
 
 
 # C Compiler Flags
@@ -72,6 +73,11 @@ ${OBJECTDIR}/agent_server.o: agent_server.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/agent_server.o agent_server.cpp
+
+${OBJECTDIR}/api_tester.o: api_tester.cpp
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/api_tester.o api_tester.cpp
 
 # Subprojects
 .build-subprojects:
