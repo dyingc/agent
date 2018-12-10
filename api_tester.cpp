@@ -20,50 +20,55 @@ void outputJobs(job_info_msg_t *job_info_msg_ptr) {
     }
 }
 
-slurm_job_info_t getJobInfo(unsigned jobid) {
+slurm_job_info_t * getJobInfo(unsigned jobid) {
         job_info_msg_t *job_info_msg_ptr = NULL;
-        slurm_load_jobs((time_t)NULL, &job_info_msg_ptr, SHOW_DETAIL);
-        int job_cnt = job_info_msg_ptr->record_count;
-        slurm_job_info_t *jobs = job_info_msg_ptr->job_array;
-        for(int i=0; i<job_cnt ; i++) {
-            if (jobs[i].job_id == jobid)
-                return jobs[i];
+        int result = slurm_load_job(&job_info_msg_ptr, jobid, SHOW_DETAIL);
+        if (result == -1) // There's some error
+            return NULL;
+        else {
+            slurm_job_info_t *jobs = job_info_msg_ptr->job_array;
+            return & jobs[0];
         }
-        return jobs[0];
 }
 
 unsigned suspendJob(slurm_job_info_t job) {
     unsigned jobid = job.job_id;
-    slurm_job_info_t newjob = getJobInfo(jobid);
-    int result = slurm_suspend(job.job_id);
+    slurm_job_info_t * newjob;
+    int result = slurm_suspend(jobid);
     if (result == 0) {
-        while (newjob.job_state != job_states(JOB_SUSPENDED)) {
-            sleep(1);
-            newjob = getJobInfo(jobid);
+        newjob = getJobInfo(jobid);
+        if (newjob == NULL) {// Can't find this job
+            printf("Job %u can't be found after it's been suspended!\n", jobid);
+            return job_states(JOB_END);
         }
         printf("Job %u has been suspended: ", jobid);
-        outputJob(newjob);
+        outputJob(*newjob);
     }
     else
         printf("Job %u hasn't been suspended successfully! The error code is: %d\n", jobid, result);
-    return newjob.job_state;
+    return newjob->job_state;
 }
 
 unsigned resumeJob(slurm_job_info_t job) {
     unsigned jobid = job.job_id;
-    slurm_job_info_t newjob = getJobInfo(jobid);
-    int result = slurm_resume(job.job_id);
+    slurm_job_info_t * newjob;
+    int result = slurm_resume(jobid);
     if (result == 0) {
-        while (newjob.job_state != job_states(JOB_RUNNING) && newjob.job_state != job_states(JOB_PENDING)) {
-            sleep(1);
-            newjob = getJobInfo(jobid);
+        newjob = getJobInfo(jobid);
+        if (newjob == NULL) {// Can't find this job
+            printf("Job %u can't be found after it's been resumed!\n", jobid);
+            return job_states(JOB_END);
         }
         printf("Job %u has been resumed: ", jobid);
-        outputJob(newjob);
+        outputJob(*newjob);
     }
     else
         printf("Job %u hasn't been resumed successfully! The error code is: %d\n", jobid, result);
-    return newjob.job_state;
+    return newjob->job_state;
+}
+
+unsigned submitJob() {
+
 }
 
 int main(int argc, char *argv[])
