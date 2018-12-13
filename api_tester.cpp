@@ -20,33 +20,40 @@ void outputJobs(job_info_msg_t *job_info_msg_ptr) {
     }
 }
 
-slurm_job_info_t * getJobInfo(unsigned jobid) {
-        job_info_msg_t *job_info_msg_ptr = NULL;
+slurm_job_info_t *  getJobInfo(job_info_msg_t * job_info_msg_ptr, unsigned jobid) {
         int result = slurm_load_job(&job_info_msg_ptr, jobid, SHOW_DETAIL);
-        if (result == -1) // There's some error
+        if (result == -1) {// There's some error
+            if (job_info_msg_ptr != NULL)
+                slurm_free_job_info_msg(job_info_msg_ptr);
             return NULL;
-        else {
-            slurm_job_info_t *jobs = job_info_msg_ptr->job_array;
-            return & jobs[0];
         }
+        return job_info_msg_ptr->job_array[0];
 }
 
 unsigned suspendJob(slurm_job_info_t job) {
+    job_info_msg_t * job_info_msg_ptr;
     unsigned jobid = job.job_id;
-    slurm_job_info_t * newjob;
+    unsigned state;
     int result = slurm_suspend(jobid);
     if (result == 0) {
-        newjob = getJobInfo(jobid);
+        slurm_job_info_t * newjob;
+        newjob = getJobInfo(job_info_msg_ptr, jobid);
         if (newjob == NULL) {// Can't find this job
             printf("Job %u can't be found after it's been suspended!\n", jobid);
+            slurm_free_job_info_msg(job_info_msg_ptr);
             return job_states(JOB_END);
         }
         printf("Job %u has been suspended: ", jobid);
         outputJob(*newjob);
+        state = newjob->job_state;
     }
-    else
+    else {
         printf("Job %u hasn't been suspended successfully! The error code is: %d\n", jobid, result);
-    return newjob->job_state;
+        slurm_free_job_info_msg(job_info_msg_ptr);
+        return result;
+    }
+    slurm_free_job_info_msg(job_info_msg_ptr);
+    return state;
 }
 
 unsigned resumeJob(slurm_job_info_t job) {
@@ -67,8 +74,33 @@ unsigned resumeJob(slurm_job_info_t job) {
     return newjob->job_state;
 }
 
-unsigned submitJob() {
-
+int submitJob(char* job_name, char* script) {
+    job_desc_msg_t desc;
+    submit_response_msg_t *resp;
+    printf("The initial setting of desc: max_nodes = %d\n", desc.max_nodes);
+    printf("The initial setting of desc: cluster = %s\n", desc.clusters);
+    slurm_init_job_desc_msg(&desc);
+    printf("The initial setting of desc: max_nodes = %d\n", desc.max_nodes);
+    printf("The initial setting of desc: cluster = %s\n", desc.clusters);
+    desc.max_nodes = 2;
+    desc.name = job_name;
+    desc.immediate = 0;
+    desc.wait_all_nodes = 0;
+    desc.script = script;
+    int result = slurm_job_will_run(&desc);
+    if (result == SLURM_SUCCESS)
+        printf("The job will be run!\n");
+    else
+        printf("The job won't be run!\n");
+    
+    result = slurm_submit_batch_job(&desc, &resp);
+    if (result == SLURM_SUCCESS)
+        printf("The job runs!\n");
+    else {
+        printf("The job failed to be submitted with errno: %d!\n", result);
+        printf("error_code = %p\n", &resp);
+    }
+    return result;
 }
 
 int main(int argc, char *argv[])
@@ -84,4 +116,9 @@ int main(int argc, char *argv[])
             suspendJob(jobs[i]);
             resumeJob(jobs[i]);
         }
+        char job_name[] = "Job cpi7 sent using C API";
+        char script[] = "/home/opc/cloud/cpi_batch.sh";
+        submitJob(job_name, script);
+        outputJobs(job_info_msg_ptr);
+        slurm_free_job_info_msg(job_info_msg_ptr);
 }
