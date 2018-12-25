@@ -5,6 +5,8 @@
 
 #include <slurm/slurm.h>
 
+job_info_msg_t *job_info_msg_ptr = NULL;
+
 void outputJob(slurm_job_info_t job) {
     char * alloc_node = job.alloc_node;
     unsigned job_id = job.job_id;
@@ -27,7 +29,7 @@ slurm_job_info_t *  getJobInfo(job_info_msg_t * job_info_msg_ptr, unsigned jobid
                 slurm_free_job_info_msg(job_info_msg_ptr);
             return NULL;
         }
-        return job_info_msg_ptr->job_array[0];
+        return job_info_msg_ptr->job_array;
 }
 
 unsigned suspendJob(slurm_job_info_t job) {
@@ -61,7 +63,7 @@ unsigned resumeJob(slurm_job_info_t job) {
     slurm_job_info_t * newjob;
     int result = slurm_resume(jobid);
     if (result == 0) {
-        newjob = getJobInfo(jobid);
+        newjob = getJobInfo(job_info_msg_ptr, jobid);
         if (newjob == NULL) {// Can't find this job
             printf("Job %u can't be found after it's been resumed!\n", jobid);
             return job_states(JOB_END);
@@ -127,7 +129,6 @@ void outputNodeInfo() {
 int main(int argc, char *argv[])
 {
         printf("Slurm version is: %ld\n", SLURM_VERSION_NUMBER);
-        job_info_msg_t *job_info_msg_ptr = NULL;
         slurm_load_jobs((time_t)NULL, &job_info_msg_ptr, SHOW_DETAIL);
         slurm_print_job_info_msg(stdout, job_info_msg_ptr, 0);
         outputJobs(job_info_msg_ptr);
@@ -142,5 +143,5 @@ int main(int argc, char *argv[])
         submitJob(job_name, script);
         outputJobs(job_info_msg_ptr);
         outputNodeInfo();
-        //slurm_free_job_info_msg(job_info_msg_ptr);
+        slurm_free_job_info_msg(job_info_msg_ptr);
 }

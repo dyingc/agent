@@ -57,20 +57,20 @@ CLIENT_OBJ=agent_client.o
 API_OBJ=api_tester.o
 
 %.o: %.cpp $(DEPS)
-        $(CC) -c -o $@ $< $(CFLAGS)
+    $(CC) -c -o $@ $< $(CFLAGS)
 
 # all   
 all: agent_server agent_client api_tester
 
 agent_server: $(SERVER_OBJ)
-        $(CC) -o $@ $^ $(CFLAGS)
+    $(CC) -o $@ $^ $(CFLAGS)
 
 agent_client: $(CLIENT_OBJ)
-        $(CC) -o $@ $^ $(CFLAGS)
+    $(CC) -o $@ $^ $(CFLAGS)
 
 api_tester: $(API_OBJ)
-        $(CC) -o $@ $^ $(CFLAGS)
+    $(CC) -o $@ $^ $(CFLAGS)
 
 # clean
 clean:
-        $(RM) $(SERVER_OBJ) $(CLIENT_OBJ) ${API_OBJ} agent_server agent_client api_tester
+    $(RM) $(SERVER_OBJ) $(CLIENT_OBJ) ${API_OBJ} agent_server agent_client api_tester
