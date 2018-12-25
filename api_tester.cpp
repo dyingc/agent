@@ -119,6 +119,7 @@ void outputNodeInfo() {
             printf("\nGeneral Resource, used: %s\n", node_array[i].gres_used);
             printf("\nCPU SPEC List: %s\n", node_array[i].cpu_spec_list);
             printf("\ncore_spec_cnt: %d\n", node_array[i].core_spec_cnt);
+            printf("\nmem_spec_limit: %d\n", node_array[i].mem_spec_limit);
         }
     }
     slurm_free_node_info_msg(resp);
