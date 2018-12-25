@@ -103,6 +103,27 @@ int submitJob(char* job_name, char* script) {
     return result;
 }
 
+void outputNodeInfo() {
+    node_info_msg_t * resp;
+    int result = slurm_load_node((time_t) NULL, &resp, SHOW_ALL);
+    if (result == 0 && resp->record_count > 0) {
+        node_info_t * node_array = resp->node_array;
+        for (int i = 0; i < resp->record_count; i++) {
+            slurm_print_node_info_msg(stdout, resp, 0);
+            resp++;
+            printf("\nFree memory: %d\n", node_array.free_mem);
+            printf("\nCPU Load: %d\n", node_array->cpu_load);
+            printf("\nGeneral Resource: %s\n", node_array->gres);
+            printf("\nGeneral Resource, drained: %s\n", node_array->gres_drain);
+            printf("\nGeneral Resource, used: %s\n", node_array->gres_used);
+            printf("\nCPU SPEC List: %s\n", node_array->cpu_spec_list);
+            printf("\ncore_spec_cnt: %d\n", node_array->core_spec_cnt);
+            node_array++;
+        }
+    }
+    slurm_free_node_info_msg(resp);
+}
+
 int main(int argc, char *argv[])
 {
         printf("Slurm version is: %ld\n", SLURM_VERSION_NUMBER);
@@ -120,5 +141,6 @@ int main(int argc, char *argv[])
         char script[] = "/home/opc/cloud/cpi_batch.sh";
         submitJob(job_name, script);
         outputJobs(job_info_msg_ptr);
-        slurm_free_job_info_msg(job_info_msg_ptr);
+        outputNodeInfo();
+        //slurm_free_job_info_msg(job_info_msg_ptr);
 }
